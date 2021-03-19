@@ -1,0 +1,17 @@
+version: "3.1"
+services:
+  prlmntq_etl_tse:
+    build: .
+    image: prlmntq_etl_tse
+    container_name: prlmntq_etl_tse
+    restart: always
+    ports:
+      - 8005:8005
+    volumes:
+      - .:/usr/src/etl_tse
+    networks:
+      - prlmntq_net
+
+networks:
+  prlmntq_net:
+    external: true
