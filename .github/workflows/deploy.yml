@@ -1,0 +1,18 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to DigitalOcean
+        uses: appleboy/ssh-action@master
+          with:
+            host: ${{ secrets.DO_HOST }}
+            username: ${{ secrets.DO_USERNAME }}
+            password: ${{ secrets.DO_PASSWORD }}
+            script: whoami
