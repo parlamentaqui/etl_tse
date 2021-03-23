@@ -1,23 +1,25 @@
-name: Run deploy
+name: Run CI Pipeline
 
 on:
-  push:
+  pull_request:
     branches:
-      - main
+      - devel
 
 jobs:
-  deploy:
+  container_name:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy etl_tse to DigitalOcean
+      - name: Build etl_tse
         uses: fifsky/ssh-action@master
         with:
           command: |
             cd 
+            cd CI
             rm -rf etl_tse
             git clone https://github.com/parlamentaqui/etl_tse/
             cp envs/.env_tse etl_tse/.env
             cd etl_tse
-            make start-prod
+            git checkout ${{ github.event.pull_request.head.ref }}
+            git branch
           host: ${{ secrets.DO_HOST }}
           pass: ${{ secrets.DO_PASSWORD }}
