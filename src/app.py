@@ -21,7 +21,7 @@ app.register_blueprint(api)
 
 @app.route('/')
 def index():
-    return "ETL TSE!!! Devel"
+    return "ETL TSE!!! Broken"
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=PORT)
+    app.run(debug=True, host='0.0.0.0', port=POR)
