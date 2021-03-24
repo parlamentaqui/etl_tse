@@ -4,7 +4,7 @@
 
         sudo service docker start
 
-1- Criar um novo arquivo com o nome ".env"
+1- Criar um novo arquivo com o nome ".env".
 
 2- Copiar o conteudo de .env.dev (que já está no projeto) para esse novo .env criado
 
