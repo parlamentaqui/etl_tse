@@ -3,3 +3,6 @@ start-dev:
 
 start-prod:
 	docker-compose up --build --detach 
+
+test:
+	sudo docker-compose run prlmntq_etl_tse python  src/test.py
