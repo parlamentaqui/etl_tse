@@ -22,15 +22,15 @@ class EtlTests(unittest.TestCase):
     self.client = self.app.test_client()
 
   def test_index_status(self):
-    request = self.client.get('http://0.0.0.0:8005/')
+    request = self.client.get('/')
     self.assertEqual(200 , request.status_code)
       
   def test_index(self):
-    request = self.client.get('http://0.0.0.0:8005/')
+    request = self.client.get('/')
     self.assertEqual('ETL TSE!!! Devel' , request.data.decode())
 
   def test_fake_status(self):
-      request = self.client.get('http://0.0.0.0:8005/not_exist')
+      request = self.client.get('/not_exist')
       self.assertEqual(404 , request.status_code)
 
   def tearDown(self):
