@@ -1,5 +1,6 @@
 from mongoengine import *
 from mongoengine.document import Document
+from mongoengine.fields import StringField
 
 class Deputy(Document):
     id = IntField(primary_key=True)
@@ -61,22 +62,37 @@ class Deputy(Document):
 
 class DeputyEquity(Document):
     id = IntField(primary_key=True)
+    csv_id = StringField(Required=True)
     deputy_name = StringField(required=True)
-    deputy_id = StringField(required=True)
+    deputy_id = IntField(required=True)
     value = IntField(required=True)
     description = StringField()
-    death_date = DateTimeField()
+    date = DateTimeField()
 
     def to_json(self):
         return {
             'id':self.id,
+            'csv_id':self.csv_id,
             'deputy_name':self.deputy_name,
             'deputy_id':self.deputy_id,
             'value':self.value,
             'description':self.description,
-            'death_date':self.death_date
+            'date':self.death_date
         }
     
+class CsvDeputy(Document):
+    deputy_id = IntField(primary_key=True)
+    csv_id = StringField(required=True)
+    deputy_name = StringField(required=True)
+
+    def to_json(self):
+        return {
+            'csv_id':self.csv_id,
+            'deputy_name':self.deputy_name,
+            'deputy_id':self.deputy_id
+        }
+
+
 # class News(Document):
 #     id = IntField(primary_key=True)
 #     deputy_id = IntField()
