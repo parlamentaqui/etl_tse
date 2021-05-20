@@ -188,6 +188,10 @@ def get_total_value_deputies_equity(id):
     equities = DeputyEquity.objects(deputy_id=id).all()
     json_value = {}
     amount = 0.0
+    deputy = Deputy.objects(id=id).first()
+    
+    if not deputy:
+        return json_value
     
     if not equities:
         return json_value
@@ -197,6 +201,8 @@ def get_total_value_deputies_equity(id):
         amount = amount + float(float_value)
 
     json_value["value"] = amount
+    json_value["deputy_id"] = deputy.id
+    json_value["deputy_name"] = deputy.name
     return json_value
 
 @api.route('/update_all_equity')
