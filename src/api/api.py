@@ -38,32 +38,35 @@ def delete_csv_deputies():
 @api.route('/update_csv_deputies')
 def update_csv_deputies():
     path = os.path.dirname(__file__) + "/temp"
+    links_list = ["https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2018.zip",
+    "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2014.zip"]
     
-    r = requests.get("https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2018.zip")
-    z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extractall(path)
+    for link in links_list:
+        r = requests.get(link)
+        z = zipfile.ZipFile(io.BytesIO(r.content))
+        z.extractall(path)
 
     csv_list = glob.glob(path + "/consulta_*.csv")
     #Verifcar cada tabela de csv
     for csv_file in csv_list:
-        
+        print(csv_file.title(), flush=True)
         deputies_json_csv = read_csv_file(csv_file)
         #O retorno da tabela é uma lista com o nome e id de cada deputado
         for deputy_json in deputies_json_csv:
-            name = deputy_json["csv_deputy_name"].lower()
+            deputy = Deputy.objects(full_name__iexact = deputy_json["csv_deputy_name"]).first()
 
-            for deputy in Deputy.objects:
-                old_deputy = CsvDeputy.objects(deputy_id=deputy.id).first()
-                if old_deputy:
-                    continue
+            if not deputy:
+                deputy = Deputy.objects(name__iexact = deputy_json["csv_fake_name"]).first()
 
-                if name in deputy.full_name.lower():
-                    #deputado encontrado, criar a classe com ele e o id
-                    CsvDeputy(
-                        csv_id = deputy_json["csv_deputy_id"],
-                        deputy_name = deputy.name,
-                        deputy_id = deputy.id
-                    ).save()
+            if deputy:
+                if "2014" in csv_file.title():
+                    print(f"Arrombed : {deputy.name}", flush=True)
+                #deputado encontrado, criar a classe com ele e o id
+                CsvDeputy(
+                    csv_id = deputy_json["csv_deputy_id"],
+                    deputy_name = deputy.name,
+                    deputy_id = deputy.id
+                ).save()
 
     return "Done. Use /csv_deputies to get all csv deputy in database."
 
@@ -77,6 +80,7 @@ def read_csv_file(file):
             temp_json = {}
             temp_json["csv_deputy_name"] = line[17]
             temp_json["csv_deputy_id"] = line[15]
+            temp_json["csv_fake_name"] = line[18]
             csv_list.append(temp_json)
         
         return csv_list
@@ -204,6 +208,42 @@ def get_total_value_deputies_equity(id):
     json_value["deputy_id"] = deputy.id
     json_value["deputy_name"] = deputy.name
     return json_value
+
+@api.route('/get_total_value_deputies_equity_by_year/<id>')
+def get_total_value_deputies_equity_by_year(id):
+    equities = DeputyEquity.objects(deputy_id=id).all()
+    list_json = []
+
+    amount_2018 = 0.0
+    amount_2014 = 0.0
+    deputy = Deputy.objects(id=id).first()
+    
+    if not deputy:
+        return list_json
+    
+    if not equities:
+        return list_json
+
+    for item in equities:
+        float_value = item.value.replace(",", ".")
+        if item.year == 2018:
+            amount_2018 = amount_2018 + float(float_value)
+        else:
+            amount_2014 = amount_2014 + float(float_value)
+    
+    
+    if amount_2014 > 0:
+        json_value = {}
+        json_value["value"] = float("{:.2f}".format(amount_2014))
+        json_value["year"] = 2014
+        list_json.append(json_value)
+    if amount_2018 > 0:
+        json_value = {}
+        json_value["value"] = float("{:.2f}".format(amount_2018))
+        json_value["year"] = 2018
+        list_json.append(json_value)
+    
+    return jsonify(list_json)
 
 @api.route('/update_all_equity')
 def update_all_equity():
