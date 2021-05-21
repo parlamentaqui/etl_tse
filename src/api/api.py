@@ -219,10 +219,10 @@ def get_total_value_deputies_equity_by_year(id):
     deputy = Deputy.objects(id=id).first()
     
     if not deputy:
-        return list_json
+        return jsonify(list_json)
     
     if not equities:
-        return list_json
+        return jsonify(list_json)
 
     for item in equities:
         float_value = item.value.replace(",", ".")
